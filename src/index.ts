@@ -672,6 +672,13 @@ export const isTabletMode = () =>
     defaultValue: false,
   });
 
+export const [islocationStatusEnabled, setIslocationStatusEnabled] = getSupportedPlatformInfoFunctions({
+  supportedPlatforms: ['android'],
+  getter: () => RNDeviceInfo.isLocationEnabled(),
+  syncGetter: () => RNDeviceInfo.isLocationStatusEnabledSync(),
+  defaultValue: false,
+ });
+
 export const [
   getAvailableLocationProviders,
   getAvailableLocationProvidersSync,
@@ -763,6 +770,10 @@ export function usePowerState(): Partial<PowerState> {
   }, []);
 
   return powerState;
+}
+
+export function useLocationStatusDidChange(): AsyncHookResult<boolean> {
+ return useOnEvent('RNDeviceInfo_locationStatusDidChange', islocationStatusEnabled, false);
 }
 
 export function useIsHeadphonesConnected(): AsyncHookResult<boolean> {
@@ -935,6 +946,7 @@ const deviceInfoModule: DeviceInfoModule = {
   usePowerState,
   useManufacturer,
   useIsHeadphonesConnected,
+  useLocationStatusDidChange,
 };
 
 export default deviceInfoModule;

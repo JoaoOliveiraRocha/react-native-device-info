@@ -73,6 +73,7 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
   private BroadcastReceiver receiver;
   private BroadcastReceiver headphoneConnectionReceiver;
   private RNInstallReferrerClient installReferrerClient;
+  private BroadcastReceiver locationStatusReceiver;
 
   private double mLastBatteryLevel = -1;
   private String mLastBatteryState = "";
@@ -132,6 +133,7 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
 
     getReactApplicationContext().registerReceiver(receiver, filter);
     initializeHeadphoneConnectionReceiver();
+    initializeLocationStatusReceiver();
   }
 
   private void initializeHeadphoneConnectionReceiver() {
@@ -150,11 +152,39 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
     getReactApplicationContext().registerReceiver(headphoneConnectionReceiver, filter);
   }
 
+  private void initializeLocationStatusReceiver() {
+    IntentFilter filter = new IntentFilter();
+    filter.addAction(LocationManager.MODE_CHANGED_ACTION);
+    filter.addAction(LocationManager.GPS_PROVIDER);
+
+   locationStatusReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        LocationManager mLocationManager = (LocationManager) getReactApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        boolean locationEnabled = false;
+
+        try {
+        locationEnabled = mLocationManager.isLocationEnabled();
+        } catch (Exception e) {
+          System.err.println("Unable to determine if location enabled. LocationManager was null");
+        }
+
+        boolean isEnabled = locationEnabled;
+        sendEvent(getReactApplicationContext(), "RNDeviceInfo_locationStatusDidChange", locationEnabled);
+      }
+    };
+
+    getReactApplicationContext().registerReceiver(locationStatusReceiver, filter);
+  }
+    
+  
+
 
   @Override
   public void onCatalystInstanceDestroy() {
     getReactApplicationContext().unregisterReceiver(receiver);
     getReactApplicationContext().unregisterReceiver(headphoneConnectionReceiver);
+    getReactApplicationContext().unregisterReceiver(locationStatusReceiver);
   }
 
 
