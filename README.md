@@ -1,3 +1,13 @@
+# Small Patch that adds a Listener to Location toggle on Android.
+
+The original package does not had a listener for that event and, on Android, to use BLE (Bluetooth Low-Energy) it's required to also have the Location active.
+The project I worked was using polling to check the location status. With this patch we've can use the event directly (which works great with the reactive nature of React Native).
+
+Does not work on iOS: BLE on iOS works without location services active so I didn't had to create the listener.
+
+
+---------
+
 <!-- markdownlint-disable MD024 MD034 MD033 -->
 
 # react-native-device-info
